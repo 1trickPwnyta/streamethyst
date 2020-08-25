@@ -4,8 +4,9 @@ const io = require("socket.io");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const settings = require("./settings");
+const plugins = new (require("./PluginManager"))();
 
-require("./chatbot")();
+require("./chatbot")(plugins);
 
 // MongoDB
 mongoose.connect("mongodb://localhost/streamethyst");
