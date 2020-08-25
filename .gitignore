@@ -1,0 +1,5 @@
+package-lock.json
+/node_modules/
+settings.js
+/commands/*.js
+!/commands/_example.js
