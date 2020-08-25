@@ -1,15 +1,11 @@
 const tmi = require("tmi.js");
 const settings = require("./settings").chatbot;
+const log = require("./logger");
 const parseCommand = require("./parseCommand");
 
 module.exports = plugins => {
-	if (!settings.credentials) {
-		console.log("No settings.chatbot.credentials found. Chatbot will not connect.");
-		return;
-	}
-	
-	if (!settings.channel) {
-		console.log("No settings.chatbot.channel found. Chatbot will not connect.");
+	if (!settings) {
+		log.warning("No settings.chatbot found. Chatbot will not connect.");
 		return;
 	}
 	
@@ -74,8 +70,8 @@ module.exports = plugins => {
 		if (msg.startsWith(settings.commandPrefix)) {
 			
 			const {command, parameters} = parseCommand(msg);
-			console.log(`Command "${command}" received.`);
-			console.log(`Command parameters: ${parameters}`);
+			log.debug(`Command "${command}" received.`);
+			log.debug(`Command parameters: ${parameters}`);
 			
 			plugins.event(`chatbot.command.{${command.substring(settings.commandPrefix.length)}}`, {
 				tags: tags, 
@@ -94,7 +90,7 @@ module.exports = plugins => {
 		
 		clients[label].on("join", (target, username, self) => {
 			if (self) {
-				console.log(`${label} connected to chat on channel ${settings.channel}.`);
+				log.info(`${label} connected to chat on channel ${settings.channel}.`);
 				
 				// Load the chatbotInit plugin only after all clients have connected
 				if (++clientsConnected == labels.length) {

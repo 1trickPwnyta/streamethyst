@@ -4,11 +4,12 @@
   "description": "Customize-able Node.js chatbot and overlay generator for Twitch streams",
   "main": "server.js",
   "scripts": {
-	"test": "nodemon server.js"
+    "test": "nodemon server.js"
   },
   "author": "1trickPonyta",
   "license": "ISC",
   "dependencies": {
+    "colors": "^1.4.0",
     "express": "^4.17.1",
     "mongoose": "^5.10.0",
     "socket.io": "^2.3.0",

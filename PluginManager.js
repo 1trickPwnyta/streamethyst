@@ -1,5 +1,6 @@
 const path = require("path");
 const fs = require("fs");
+const log = require("./logger");
 
 class PluginManager {
 	constructor() {
@@ -7,7 +8,7 @@ class PluginManager {
 		
 		const pluginPath = path.join(__dirname, "plugins");
 		
-		// Function to recursively find files in the plugins directory
+		// Function to recursively find files in the plugins folder
 		var walk = function(dir, done) {
 			var results = [];
 			fs.readdir(dir, function(err, list) {
@@ -31,6 +32,7 @@ class PluginManager {
 			});
 		};
 		
+		// Load all plugins from the plugins folder
 		walk(pluginPath, (err, results) => {
 			results.forEach(file => {
 				if (file.endsWith(".js")) {
@@ -39,8 +41,11 @@ class PluginManager {
 						if (!this.plugins[plugin.event]) {
 							this.plugins[plugin.event] = [];
 						}
-						this.plugins[plugin.event].push(plugin.action);
-						console.log(`Loaded plugin "${file}".`);
+						this.plugins[plugin.event].push({
+							action: plugin.action,
+							file: file
+						});
+						log.info(`Loaded plugin "${file}".`);
 					}
 				}
 			});
@@ -49,9 +54,17 @@ class PluginManager {
 	}
 	
 	event(event, context) {
-		console.log(`Event received: ${event}`);
+		log.debug(`Event received: ${event}`);
 		if (this.plugins[event]) {
-			this.plugins[event].forEach(plugin => plugin(context));
+			this.plugins[event].forEach(plugin => {
+				try {
+					log.debug(`Calling plugin ${plugin.file}.`);
+					plugin.action(context);
+					log.debug(`Plugin ${plugin.file} executed successfully.`);
+				} catch (e) {
+					log.error(`Plugin ${plugin.file} failed. ${e}`);
+				}
+			});
 		}
 	}
 }

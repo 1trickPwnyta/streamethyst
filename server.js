@@ -4,6 +4,7 @@ const io = require("socket.io");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const settings = require("./settings");
+const log = require("./logger");
 const plugins = new (require("./PluginManager"))();
 
 require("./chatbot")(plugins);
@@ -23,5 +24,5 @@ app.use("/", express.static("static"));
 
 // Start server
 httpServer.listen(settings.serverPort, () => {
-	console.log(`Server listening at http://localhost:${settings.serverPort}`);
+	log.info(`Server listening at http://localhost:${settings.serverPort}`);
 });
