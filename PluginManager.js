@@ -38,12 +38,15 @@ class PluginManager {
 				if (file.endsWith(".js")) {
 					let plugin = require(`./plugins/${file}`);
 					if (plugin.enabled) {
-						if (!this.plugins[plugin.event]) {
-							this.plugins[plugin.event] = [];
-						}
-						this.plugins[plugin.event].push({
-							action: plugin.action,
-							file: file
+						if (!Array.isArray(plugin.event)) plugin.event = [plugin.event];
+						plugin.event.forEach(event => {
+							if (!this.plugins[event]) {
+								this.plugins[event] = [];
+							}
+							this.plugins[event].push({
+								action: plugin.action,
+								file: file
+							});
 						});
 						log.info(`Loaded plugin "${file}".`);
 					}

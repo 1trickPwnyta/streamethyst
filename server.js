@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const io = require("socket.io");
 const mongoose = require("mongoose");
+const mai = require("mongoose-auto-increment");
 const bodyParser = require("body-parser");
 const settings = require("./settings");
 const log = require("./logger");
@@ -11,6 +12,8 @@ require("./chatbot")(plugins);
 
 // MongoDB
 mongoose.connect("mongodb://localhost/streamethyst");
+const connection = mongoose.createConnection("mongodb://localhost/streamethyst");
+mai.initialize(connection);
 
 // Express
 const app = express();

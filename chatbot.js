@@ -62,10 +62,10 @@ module.exports = plugins => {
 	let firstClient = clients[labels[0]];
 	
 	// Only the first client loads command modules
-	firstClient.on("message", (target, tags, msg) => {
+	firstClient.on("message", (target, user, msg) => {
 		
 		// Ignore users with no ID (automated messages)
-		if (!tags["user-id"]) return;
+		if (!user["user-id"]) return;
 		
 		if (msg.startsWith(settings.commandPrefix)) {
 			
@@ -73,8 +73,10 @@ module.exports = plugins => {
 			log.debug(`Command "${command}" received.`);
 			log.debug(`Command parameters: ${parameters}`);
 			
-			plugins.event(`chatbot.command.{${command.substring(settings.commandPrefix.length)}}`, {
-				tags: tags, 
+			let commandName = command.substring(settings.commandPrefix.length);
+			plugins.event(`chatbot.command.{${commandName}}`, {
+				user: user, 
+				command: commandName,
 				parameters: parameters, 
 				message: msg.substring(msg.indexOf(" ") + 1),
 				chat: getChatFunction(target)
