@@ -36,19 +36,23 @@ class PluginManager {
 		walk(pluginPath, (err, results) => {
 			results.forEach(file => {
 				if (file.endsWith(".js")) {
-					let plugin = require(`./plugins/${file}`);
-					if (plugin.enabled) {
-						if (!Array.isArray(plugin.event)) plugin.event = [plugin.event];
-						plugin.event.forEach(event => {
-							if (!this.plugins[event]) {
-								this.plugins[event] = [];
-							}
-							this.plugins[event].push({
-								action: plugin.action,
-								file: file
+					try {
+						let plugin = require(`./plugins/${file}`);
+						if (plugin.enabled) {
+							if (!Array.isArray(plugin.event)) plugin.event = [plugin.event];
+							plugin.event.forEach(event => {
+								if (!this.plugins[event]) {
+									this.plugins[event] = [];
+								}
+								this.plugins[event].push({
+									action: plugin.action,
+									file: file
+								});
 							});
-						});
-						log.info(`Loaded plugin "${file}".`);
+							log.info(`Loaded plugin "${file}".`);
+						}
+					} catch (e) {
+						log.error(`Failed to load plugin "${file}". ${e}`);
 					}
 				}
 			});

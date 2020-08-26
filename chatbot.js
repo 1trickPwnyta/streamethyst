@@ -67,6 +67,9 @@ module.exports = plugins => {
 		// Ignore users with no ID (automated messages)
 		if (!user["user-id"]) return;
 		
+		// Add admin property to user to indicate admin status (mod or channel owner)
+		user.admin = user.mod || user["user-id"] == user["room-id"];
+		
 		if (msg.startsWith(settings.commandPrefix)) {
 			
 			const {command, parameters} = parseCommand(msg);
@@ -74,11 +77,15 @@ module.exports = plugins => {
 			log.debug(`Command parameters: ${parameters}`);
 			
 			let commandName = command.substring(settings.commandPrefix.length);
+			let message = msg.includes(" ")? 
+				msg.substring(msg.indexOf(" ") + 1): 
+				"";
+				
 			plugins.event(`chatbot.command.{${commandName}}`, {
 				user: user, 
 				command: commandName,
 				parameters: parameters, 
-				message: msg.substring(msg.indexOf(" ") + 1),
+				message: message,
 				chat: getChatFunction(target)
 			});
 			
