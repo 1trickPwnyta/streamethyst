@@ -51,3 +51,23 @@ Deletes a quote. Only channel owners/moderators can use this command.
       !quote delete $number
 
 * $number: The quote number to delete.
+
+## Stream Overlay
+streamethyst includes a stream overlay that can be accessed at http://localhost:9095 (or whichever port you use in settings.js) while streamethyst is running. Some commands may trigger audio or visual effects on the overlay, such as sound commands.
+
+## Custom Plugins
+streamethyst is specifically designed to be extremely customizable! Plugins are Javascript files that adhere to a specific format and go in the plugins folder or any subfolder therein. Plugins are loaded at startup and are triggered each time certain events occur.
+
+### Events
+
+#### chatbot.connect
+Called when the chatbot has connected to Twitch after streamethyst starts up.
+
+#### chatbot.command.{\*}
+Called when a user in chat enters a specific command (any message that beings with the commandPrefix in settings.js).
+
+### Triggering Plugins
+Plugins register for one or more events. When the event is called, each plugin registered for that event will be triggered, in no particular order.
+
+### Creating a Custom Plugin
+streamethyst comes with some examples of how to use custom plugins, which can be found in the subfolders of the plugins folder. The built-in quote command is also implemented using a plugin, which can be reviewed for a much more complex example.
