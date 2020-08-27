@@ -11,4 +11,4 @@ module.exports = cooldown({
 		// YOUR CODE HERE
 		
 	}
-};
+});
