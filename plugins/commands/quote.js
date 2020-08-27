@@ -41,7 +41,7 @@ module.exports = {
 		
 		let showQuote = async quote => {
 			if (quote) {
-				context.chat("bot", `${quote._id}. "${quote.text}" (${quote.createdAt.toDateString()})`);
+				context.chat("bot", `Quote ${quote._id}: ${quote.text} (${quote.createdAt.toDateString()})`);
 			} else {
 				context.chat("bot", "No quote found!");
 			}
