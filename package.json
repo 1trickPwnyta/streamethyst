@@ -1,6 +1,6 @@
 {
   "name": "streamethyst",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Customize-able Node.js chatbot and overlay generator for Twitch streams",
   "main": "server.js",
   "scripts": {
