@@ -4,10 +4,10 @@ module.exports = httpServer => {
 	
 	return {
 		
-		playSound: path => {
+		playSound: (path, volume=1) => {
 			io.emit("sound", {
 				path: path,
-				volume: 1,
+				volume: volume,
 				loop: false
 			});
 		}
