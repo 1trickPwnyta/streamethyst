@@ -1,5 +1,5 @@
 *.js
-!_example.js
+!_example-custom.js
 !/commands/features/*
 !/commands/util/*
 !/commands/quote.js
