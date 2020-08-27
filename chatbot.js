@@ -3,7 +3,7 @@ const settings = require("./settings").chatbot;
 const log = require("./logger");
 const parseCommand = require("./parseCommand");
 
-module.exports = plugins => {
+module.exports = (plugins, io) => {
 	if (!settings) {
 		log.warning("No settings.chatbot found. Chatbot will not connect.");
 		return;
@@ -86,7 +86,8 @@ module.exports = plugins => {
 				command: commandName,
 				parameters: parameters, 
 				message: message,
-				chat: getChatFunction(target)
+				chat: getChatFunction(target),
+				io: io
 			});
 			
 		}

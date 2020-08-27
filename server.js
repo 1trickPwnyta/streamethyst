@@ -1,14 +1,11 @@
 const express = require("express");
 const http = require("http");
-const io = require("socket.io");
 const mongoose = require("mongoose");
 const mai = require("mongoose-auto-increment");
 const bodyParser = require("body-parser");
 const settings = require("./settings");
 const log = require("./logger");
 const plugins = new (require("./PluginManager"))();
-
-require("./chatbot")(plugins);
 
 // MongoDB
 mongoose.connect("mongodb://localhost/streamethyst");
@@ -18,7 +15,6 @@ mai.initialize(connection);
 // Express
 const app = express();
 const httpServer = http.createServer(app);
-const ioServer = io(httpServer);
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
@@ -29,3 +25,7 @@ app.use("/", express.static("static"));
 httpServer.listen(settings.serverPort, () => {
 	log.info(`Server listening at http://localhost:${settings.serverPort}`);
 });
+
+// Start IO server
+const io = require("./io")(httpServer);
+require("./chatbot")(plugins, io);

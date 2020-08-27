@@ -41,6 +41,7 @@ class PluginManager {
 						if (plugin.enabled) {
 							if (!Array.isArray(plugin.event)) plugin.event = [plugin.event];
 							plugin.event.forEach(event => {
+								event = event.toLowerCase();
 								if (!this.plugins[event]) {
 									this.plugins[event] = [];
 								}
@@ -61,6 +62,7 @@ class PluginManager {
 	}
 	
 	event(event, context) {
+		event = event.toLowerCase();
 		log.debug(`Event received: ${event}`);
 		if (this.plugins[event]) {
 			this.plugins[event].forEach(plugin => {
