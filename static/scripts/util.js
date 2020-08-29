@@ -1,9 +1,7 @@
-let socket = io();
-
-socket.on("sound", function(data) {
+function playSound(path, volume, loop) {
 	let audio = document.createElement("audio");
-	audio.src = `./audio/${data.path}`;
-	audio.volume = data.volume;
-	audio.loop = data.loop;
+	audio.src = path;
+	audio.volume = volume;
+	audio.loop = loop;
 	audio.play();
-});
+}
