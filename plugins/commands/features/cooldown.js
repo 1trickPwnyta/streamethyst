@@ -14,14 +14,16 @@ module.exports = (options, plugin) => {
 			if (!options.userCooldownSeconds || 
 					!plugin.userLastUsed[context.user["user-id"]] || 
 					plugin.userLastUsed[context.user["user-id"]] < Date.now() - options.userCooldownSeconds*1000) {
-			
+				
+				plugin.lastUsed = Date.now();
+				plugin.userLastUsed[context.user["user-id"]] = Date.now();
+				
 				try {
 					action(context);
 				} catch (e) {
 					log.debug("Command execution failed, but cooldown initiated anyway.");
+					throw e;
 				}
-				plugin.lastUsed = Date.now();
-				plugin.userLastUsed[context.user["user-id"]] = Date.now();
 				
 			} else {
 				log.debug("Command skipped due to user cooldown.");

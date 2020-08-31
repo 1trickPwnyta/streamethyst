@@ -1,4 +1,4 @@
-*.js
+*
 !_example-custom*.js
 !/commands/features/*
 !/commands/util/*

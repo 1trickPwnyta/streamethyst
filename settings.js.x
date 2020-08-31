@@ -15,6 +15,11 @@ module.exports = {
 		},
 		channel: "yourTwitchUsername",
 		commandPrefix: "!"
+	},
+	
+	overlay: {
+		width: 1920,
+		height: 1080
 	}
 	
 };

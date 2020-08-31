@@ -38,20 +38,23 @@ class PluginManager {
 				if (file.endsWith(".js")) {
 					try {
 						let plugin = require(`./plugins/${file}`);
-						if (plugin.enabled) {
-							if (!Array.isArray(plugin.event)) plugin.event = [plugin.event];
-							plugin.event.forEach(event => {
-								event = event.toLowerCase();
-								if (!this.plugins[event]) {
-									this.plugins[event] = [];
-								}
-								this.plugins[event].push({
-									action: plugin.action,
-									file: file
+						if (!Array.isArray(plugin)) plugin = [plugin];
+						plugin.forEach(module => {
+							if (module.enabled) {
+								if (!Array.isArray(module.event)) module.event = [module.event];
+								module.event.forEach(event => {
+									event = event.toLowerCase();
+									if (!this.plugins[event]) {
+										this.plugins[event] = [];
+									}
+									this.plugins[event].push({
+										action: module.action,
+										file: file
+									});
 								});
-							});
-							log.info(`Loaded plugin "${file}".`);
-						}
+							}
+						});
+						log.info(`Loaded plugin "${file}".`);
 					} catch (e) {
 						log.error(`Failed to load plugin "${file}". ${e}`);
 					}

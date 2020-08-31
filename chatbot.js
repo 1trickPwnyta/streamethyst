@@ -76,7 +76,7 @@ module.exports = (plugins, io) => {
 			log.debug(`Command "${command}" received.`);
 			log.debug(`Command parameters: ${parameters}`);
 			
-			let commandName = command.substring(settings.commandPrefix.length);
+			let commandName = command.substring(settings.commandPrefix.length).toLowerCase();
 			let message = msg.includes(" ")? 
 				msg.substring(msg.indexOf(" ") + 1): 
 				"";
