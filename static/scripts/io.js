@@ -1,7 +1,11 @@
+const urlParams = new URLSearchParams(window.location.search);
+let overlayName = urlParams.get("overlay");
+if (!overlayName) overlayName = "";
+
 let socket = io();
 
 socket.on("sound", data => {
-	playSound(`./audio/${data.path}`, data.volume, data.loop);
+	playSound(`/audio/${data.path}`, data.volume, data.loop);
 });
 
 socket.on("visual", data => {

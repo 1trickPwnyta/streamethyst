@@ -1,36 +1,47 @@
 const settings = require("./settings");
 const uuid = require("./util").uuidv4;
 
-module.exports = httpServer => {
+module.exports = (httpServer, name="") => {
 	
 	const io = require("socket.io")(httpServer);
 	
-	io.on("connection", () => {
+	io.on("connection", socket => {
+		
+		// Join socket to room based on URL path overlay regex
+		let re = /^https?:\/\/.*\/overlay\/([^\/]+)\/?/;
+		let referer = socket.handshake.headers.referer;
+		let overlay = "default";
+		if (referer.match(re)) {
+			overlay = referer.replace(re, "$1");
+		}
+		socket.join(overlay);
+		
 		// Set the size of the overlay and clear its contents
-		io.emit("script", {
+		socket.emit("script", {
 			code: `
 document.body.style.width = "${settings.overlay.width}px";
 document.body.style.height = "${settings.overlay.height}px";
 document.getElementById("main").innerHTML = "";
 `
 		});
+		
 	});
 	
 	return {
 		
-		playSound: (path, volume=1) => {
-			io.emit("sound", {
+		playSound: (path, adtlData={}) => {
+			io.in(adtlData.overlay !== undefined? adtlData.overlay: "default").emit("sound", {
 				path: path,
-				volume: volume,
-				loop: false
+				volume: adtlData.volume !== undefined? adtlData.volume: 1,
+				loop: adtlData.loop !== undefined? adtlData.loop: false
 			});
 		},
 		
 		showVisual: (tagName, x, y, adtlData={}) => {
 			
-			let id = adtlData.id? adtlData.id: uuid();
+			let id = adtlData.id !== undefined? adtlData.id: uuid();
 			
-			io.emit("visual", {
+			io.in(adtlData.overlay !== undefined? adtlData.overlay: "default").emit("visual", {
 				tagName: tagName,
 				id: id,
 				className: adtlData.className,
@@ -45,8 +56,8 @@ document.getElementById("main").innerHTML = "";
 			return id;
 		},
 		
-		removeVisual: id => {
-			io.emit("remove-visual", {
+		removeVisual: (id, adtlData={}) => {
+			io.in(adtlData.overlay !== undefined? adtlData.overlay: "default").emit("remove-visual", {
 				id: id
 			});
 		}

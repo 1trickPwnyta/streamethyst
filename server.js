@@ -3,6 +3,7 @@ const http = require("http");
 const mongoose = require("mongoose");
 const mai = require("mongoose-auto-increment");
 const bodyParser = require("body-parser");
+const path = require("path");
 const settings = require("./settings");
 const log = require("./logger");
 const plugins = new (require("./PluginManager"))();
@@ -20,6 +21,10 @@ app.use(bodyParser.json());
 
 // Routes
 app.use("/", express.static("static"));
+app.use("/overlay/*", express.static("static"));
+/*app.route("/:overlay").get((req, res) => {
+	res.sendFile(path.join(__dirname, "static", "index.html"));
+});*/
 
 // Start server
 httpServer.listen(settings.serverPort, () => {
