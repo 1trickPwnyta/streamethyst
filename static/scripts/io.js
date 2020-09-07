@@ -82,6 +82,10 @@ socket.on("remove-visual", data => {
 	let main = document.getElementById("main");
 	
 	let visual = document.getElementById(data.id);
+	if (!visual) {
+		console.log(`No visual with id ${data.id}`);
+		return;
+	}
 	
 	if (visual.transitionData && visual.transitionData.out) {
 		let transition = visual.transitionData.out;
@@ -123,6 +127,29 @@ socket.on("remove-visual", data => {
 	}
 });
 
+socket.on("style", data => {
+	let style = document.createElement("style");
+	style.id = data.id;
+	style.innerHTML = data.css;
+	document.head.appendChild(style);
+});
+
+socket.on("remove-style", data => {
+	let style = document.getElementById(data.id);
+	if (style) {
+		document.head.removeChild(style);
+	}
+});
+
 socket.on("script", data => {
-	eval(data.code);
+	let io = {
+		signal: (id, data={}) => {
+			socket.emit("signal", {
+				id: id,
+				data: data
+			});
+		}
+	};
+	
+	Function(`"use strict"; return io => {${data.code}};`)()(io);
 });

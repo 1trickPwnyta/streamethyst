@@ -32,5 +32,5 @@ httpServer.listen(settings.serverPort, () => {
 });
 
 // Start IO server
-const io = require("./io")(httpServer);
-require("./chatbot")(plugins, io);
+const io = require("./io")(httpServer, plugins)();
+require("./chatbot")(io, plugins);
