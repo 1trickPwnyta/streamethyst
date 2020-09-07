@@ -64,11 +64,18 @@ module.exports = (io, plugins) => {
 	// Only the first client loads command modules
 	firstClient.on("message", (target, user, msg) => {
 		
-		// Ignore users with no ID (automated messages)
-		if (!user["user-id"]) return;
-		
 		// Add admin property to user to indicate admin status (mod or channel owner)
 		user.admin = user.mod || user["user-id"] == user["room-id"];
+		
+		plugins.event(`chatbot.chat`, {
+			user: user, 
+			message: msg,
+			chat: getChatFunction(target),
+			io: io
+		});
+		
+		// Ignore commands from users with no ID (automated messages)
+		if (!user["user-id"]) return;
 		
 		if (msg.startsWith(settings.commandPrefix)) {
 			
