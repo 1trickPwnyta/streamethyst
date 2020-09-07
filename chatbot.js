@@ -67,7 +67,7 @@ module.exports = (io, plugins) => {
 		// Add admin property to user to indicate admin status (mod or channel owner)
 		user.admin = user.mod || user["user-id"] == user["room-id"];
 		
-		plugins.event(`chatbot.chat`, {
+		plugins.event(`chatbot.message`, {
 			user: user, 
 			message: msg,
 			chat: getChatFunction(target),
