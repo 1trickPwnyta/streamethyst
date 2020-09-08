@@ -50,11 +50,13 @@ module.exports = (io, plugins) => {
 	// Define chat function template to use in commands and plugins
 	let getChatFunction = target => {
 		return (label, message) => {
-			// Respond with the specified client
-			if (labels.length > 1) {
-				clients[label].say(target, message);
-			} else {
-				clients["default"].say(target, message);
+			if (message) {
+				// Respond with the specified client
+				if (labels.length > 1) {
+					clients[label].say(target, message);
+				} else {
+					clients["default"].say(target, message);
+				}
 			}
 		};
 	};

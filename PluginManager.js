@@ -56,7 +56,7 @@ class PluginManager {
 						});
 						log.info(`Loaded plugin "${file}".`);
 					} catch (e) {
-						log.error(`Failed to load plugin "${file}". ${e}`);
+						log.error(`Failed to load plugin "${file}". ${e.stack}`);
 					}
 				}
 			});
@@ -74,7 +74,7 @@ class PluginManager {
 					plugin.action(context);
 					log.debug(`Plugin ${plugin.file} executed successfully.`);
 				} catch (e) {
-					log.error(`Plugin ${plugin.file} failed. ${e}`);
+					log.error(`Plugin ${plugin.file} failed. ${e.stack}`);
 				}
 			});
 		}

@@ -148,7 +148,9 @@ socket.on("script", data => {
 				id: id,
 				data: data
 			});
-		}
+		},
+		
+		playSound: (path, volume, loop) => playSound(`/audio/${path}`, volume, loop)
 	};
 	
 	Function(`"use strict"; return io => {${data.code}};`)()(io);
