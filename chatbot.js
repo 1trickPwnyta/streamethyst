@@ -89,15 +89,18 @@ module.exports = (io, plugins) => {
 			let message = msg.includes(" ")? 
 				msg.substring(msg.indexOf(" ") + 1): 
 				"";
-				
-			plugins.event(`chatbot.command.{${commandName}}`, {
+			
+			const event = {
 				user: user, 
 				command: commandName,
 				parameters: parameters, 
 				message: message,
 				chat: getChatFunction(target),
 				io: io
-			});
+			};
+			
+			plugins.event("chatbot.command", event);
+			plugins.event(`chatbot.command.{${commandName}}`, event);
 			
 		}
 		
