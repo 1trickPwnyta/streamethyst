@@ -56,7 +56,7 @@ socket.on("visual", data => {
 						startTransition = () => visual.style.left = `${data.x}px`;
 						break;
 					case "right":
-						visual.style.left = visual.style.width;
+						visual.style.left = `-${visual.style.width}`;
 						startTransition = () => visual.style.left = `${data.x}px`;
 						break;
 				}
@@ -102,7 +102,7 @@ socket.on("remove-visual", data => {
 				visual.style.transitionProperty = "left";
 				switch (transition.direction) {
 					case "left":
-						startTransition = () => visual.style.left = visual.style.width;
+						startTransition = () => visual.style.left = `-${visual.style.width}`;
 						break;
 					case "right":
 						startTransition = () => visual.style.left = `${document.body.scrollWidth}px`;
