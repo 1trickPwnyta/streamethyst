@@ -2,6 +2,7 @@ const tmi = require("tmi.js");
 const settings = require("./settings").chatbot;
 const log = require("./logger");
 const parseCommand = require("./parseCommand");
+const User = require("./models/user");
 
 module.exports = (io, plugins) => {
 	if (!settings) {
@@ -47,24 +48,40 @@ module.exports = (io, plugins) => {
 		
 	};
 	
-	// Define chat function template to use in commands and plugins
-	let getChatFunction = target => {
-		return (label, message) => {
+	let getClient = label => {
+		if (label && labels.length > 1) return clients[label];
+		else return clients["default"];
+	};
+	
+	// Define functions to use in plugins
+	let pluginFunctions = {
+		
+		chat: (label, message) => {
 			if (message) {
-				// Respond with the specified client
-				if (labels.length > 1) {
-					clients[label].say(target, message);
-				} else {
-					clients["default"].say(target, message);
-				}
+				getClient(label).say(settings.channel, message);
 			}
-		};
+		},
+		
+		whisper: (label, username, message) => {
+			if (username && message) {
+				getClient(label).whisper(username, message);
+			}
+		}
+		
 	};
 	
 	let firstClient = clients[labels[0]];
 	
 	// Only the first client loads command modules
-	firstClient.on("message", (target, user, msg) => {
+	firstClient.on("message", async (target, user, msg) => {
+		
+		// Add database user properties to user
+		let dbUser = await User.findOne({userid: user["user-id"]});
+		if (!dbUser) dbUser = await User.create({
+			userid: user["user-id"],
+			username: user.username
+		});
+		Object.assign(user, dbUser._doc);
 		
 		// Add admin property to user to indicate admin status (mod or channel owner)
 		user.admin = user.mod || user["user-id"] == user["room-id"];
@@ -72,7 +89,7 @@ module.exports = (io, plugins) => {
 		plugins.event(`chatbot.message`, {
 			user: user, 
 			message: msg,
-			chat: getChatFunction(target),
+			...pluginFunctions,
 			io: io
 		});
 		
@@ -95,7 +112,7 @@ module.exports = (io, plugins) => {
 				command: commandName,
 				parameters: parameters, 
 				message: message,
-				chat: getChatFunction(target),
+				...pluginFunctions,
 				io: io
 			};
 			
@@ -117,7 +134,7 @@ module.exports = (io, plugins) => {
 				// Load the chatbotInit plugin only after all clients have connected
 				if (++clientsConnected == labels.length) {
 					plugins.event("chatbot.connect", {
-						chat: getChatFunction(target)
+						...pluginFunctions
 					});
 				}
 			}
