@@ -4,7 +4,8 @@ const mcu = require("mongoose-createdat-updatedat");
 
 let schema = new mongoose.Schema({
 	userid: String,
-	username: String
+	username: String,
+	displayName: String
 });
 schema.plugin(mcu);
 

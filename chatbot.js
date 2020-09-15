@@ -48,9 +48,34 @@ module.exports = (io, plugins) => {
 		
 	};
 	
+	// Get the client corresponding to a label
 	let getClient = label => {
 		if (label && labels.length > 1) return clients[label];
 		else return clients["default"];
+	};
+	
+	let firstClient = clients[labels[0]];
+	
+	// Add database user properties to user
+	let getUser = async user => {
+		let dbUserProps = {
+			userid: user["user-id"],
+			username: user.username,
+			displayName: user["display-name"]
+		};
+		let dbUser = await User.findOne({userid: dbUserProps.userid});
+		if (!dbUser) {
+			dbUser = await User.create(dbUserProps);
+		} else {
+			Object.assign(dbUser, dbUserProps);
+			dbUser.save();
+		}
+		Object.assign(user, dbUser._doc);
+		user.admin = [
+			...(await firstClient.mods(settings.channel)), 
+			settings.channel.toLowerCase()
+		].includes(user.username);
+		return user;
 	};
 	
 	// Define functions to use in plugins
@@ -70,34 +95,9 @@ module.exports = (io, plugins) => {
 		
 	};
 	
-	let firstClient = clients[labels[0]];
-	
-	// Only the first client loads command modules
-	firstClient.on("message", async (target, user, msg) => {
-		
-		// Add database user properties to user
-		let dbUser = await User.findOne({userid: user["user-id"]});
-		if (!dbUser) dbUser = await User.create({
-			userid: user["user-id"],
-			username: user.username
-		});
-		Object.assign(user, dbUser._doc);
-		
-		// Add admin property to user to indicate admin status (mod or channel owner)
-		user.admin = user.mod || user["user-id"] == user["room-id"];
-		
-		plugins.event(`chatbot.message`, {
-			user: user, 
-			message: msg,
-			...pluginFunctions,
-			io: io
-		});
-		
-		// Ignore commands from users with no ID (automated messages)
-		if (!user["user-id"]) return;
-		
+	// Parse and return a command event
+	let getCommandEvent = (user, msg) => {
 		if (msg.startsWith(settings.commandPrefix)) {
-			
 			const {command, parameters} = parseCommand(msg);
 			log.debug(`Command "${command}" received.`);
 			log.debug(`Command parameters: ${parameters}`);
@@ -107,20 +107,65 @@ module.exports = (io, plugins) => {
 				msg.substring(msg.indexOf(" ") + 1): 
 				"";
 			
-			const event = {
-				user: user, 
+			return {
+				user: user,
 				command: commandName,
 				parameters: parameters, 
 				message: message,
 				...pluginFunctions,
 				io: io
 			};
-			
+		} else return null;
+	}
+	
+	// Only the first client loads chat-based modules
+	firstClient.on("chat", async (target, user, msg) => {
+		
+		// Ignore commands from users with no ID (automated messages)
+		if (!user["user-id"]) return;
+		
+		// Add DB props
+		user = await getUser(user);
+		
+		plugins.event(`chatbot.message`, {
+			user: user, 
+			message: msg,
+			...pluginFunctions,
+			io: io
+		});
+		
+		const event = getCommandEvent(user, msg);
+		if (event) {
+			event.source = "chat";
 			plugins.event("chatbot.command", event);
-			plugins.event(`chatbot.command.{${commandName}}`, event);
-			
+			plugins.event(`chatbot.command.{${event.command}}`, event);
 		}
 		
+	});
+	
+	labels.forEach(label => {
+		clients[label].on("whisper", async (from, user, msg) => {
+			
+			// Ignore commands from users with no ID (automated messages)
+			if (!user["user-id"]) return;
+			
+			user = await getUser(user);
+			
+			plugins.event(`chatbot.{${label}}.whisper`, {
+				user: user, 
+				message: msg,
+				...pluginFunctions,
+				io: io
+			});
+			
+			const event = getCommandEvent(user, msg);
+			if (event) {
+				event.source = "whisper";
+				plugins.event("chatbot.command", event);
+				plugins.event(`chatbot.command.{${event.command}}`, event);
+			}
+			
+		});
 	});
 	
 	// Connect all clients
