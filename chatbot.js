@@ -58,13 +58,13 @@ module.exports = (io, plugins) => {
 		
 		chat: (label, message) => {
 			if (message) {
-				getClient(label).say(settings.channel, message);
+				getClient(label).say(settings.channel, message.toString());
 			}
 		},
 		
 		whisper: (label, username, message) => {
 			if (username && message) {
-				getClient(label).whisper(username, message);
+				getClient(label).whisper(username, message.toString());
 			}
 		}
 		
