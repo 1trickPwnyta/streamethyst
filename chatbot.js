@@ -87,6 +87,12 @@ module.exports = (io, plugins) => {
 			}
 		},
 		
+		me: (label, message) => {
+			if (message) {
+			getClient(label).say(settings.channel, `/me ${message}`);
+			}
+		},
+		
 		whisper: (label, username, message) => {
 			if (username && message) {
 				getClient(label).whisper(username, message.toString());
