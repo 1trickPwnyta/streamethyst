@@ -101,6 +101,12 @@ module.exports = {
 				let quote = await Quote.findOne({_id: context.parameters[0]});
 				showQuote(quote);
 				
+			} else if (context.parameters.length > 0) {
+				
+				// Search quote
+				let term = context.message.trim();
+				searchQuote(term);
+				
 			} else {
 				
 				// Get random quote
