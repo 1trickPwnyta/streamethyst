@@ -14,6 +14,7 @@
     "mongoose": "^5.10.0",
     "mongoose-auto-increment": "^5.0.1",
     "mongoose-createdat-updatedat": "^1.2.0",
+    "node-htmlencode": "0.0.1",
     "node-restful": "^0.2.6",
     "socket.io": "^2.3.0",
     "tmi.js": "1trickPonyta/tmi.js#master"
