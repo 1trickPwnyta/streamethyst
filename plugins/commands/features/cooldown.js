@@ -9,34 +9,43 @@ module.exports = (options, plugin) => {
 	let action = plugin.action;
 	plugin.action = context => {
 		
-		let globalCooldownSecondsRemaining = Math.floor((!(options.adminOverride && context.user.admin) && 
-				options.globalCooldownSeconds? options.globalCooldownSeconds*1000 - (Date.now() - plugin.lastUsed): 0)/1000);
-		let userCooldownSecondsRemaining = Math.floor((!(options.adminOverride && context.user.admin) && 
-				options.userCooldownSeconds && plugin.userLastUsed[context.user["user-id"]]? 
-				options.userCooldownSeconds*1000 - (Date.now() - plugin.userLastUsed[context.user["user-id"]]): 0)/1000);
-		let cooldownSecondsRemaining = Math.max(globalCooldownSecondsRemaining, userCooldownSecondsRemaining);
+		let globalCooldownSecondsRemaining,
+			userCooldownSecondsRemaining,
+			cooldownSecondsRemaining;
 		
-		if (globalCooldownSecondsRemaining <= 0) {	
-			if (userCooldownSecondsRemaining <= 0) {
+		if (context.user) {
+			globalCooldownSecondsRemaining = Math.floor((!(options.adminOverride && context.user.admin) && 
+					options.globalCooldownSeconds? options.globalCooldownSeconds*1000 - (Date.now() - plugin.lastUsed): 0)/1000);
+			userCooldownSecondsRemaining = Math.floor((!(options.adminOverride && context.user.admin) && 
+					options.userCooldownSeconds && plugin.userLastUsed[context.user["user-id"]]? 
+					options.userCooldownSeconds*1000 - (Date.now() - plugin.userLastUsed[context.user["user-id"]]): 0)/1000);
+			cooldownSecondsRemaining = Math.max(globalCooldownSecondsRemaining, userCooldownSecondsRemaining);
+		}
+		
+		if (globalCooldownSecondsRemaining <= 0 || !context.user) {	
+			if (userCooldownSecondsRemaining <= 0 || !context.user) {
 				
-				plugin.lastUsed = Date.now();
-				plugin.userLastUsed[context.user["user-id"]] = Date.now();
+				if (context.user) {
+					plugin.lastUsed = Date.now();
+					plugin.userLastUsed[context.user["user-id"]] = Date.now();
+				}
 				
 				try {
 					action(context);
 				} catch (e) {
-					log.debug("Command execution failed, but cooldown initiated anyway.");
+					if (context.user) log.debug("Plugin execution failed, but cooldown initiated anyway.");
+					else log.debug("Plugin execution failed.");
 					throw e;
 				}
 				
 			} else {
-				log.debug("Command skipped due to user cooldown.");
+				log.debug("Plugin skipped due to user cooldown.");
 			}
 		} else {
-			log.debug("Command skipped due to global cooldown.");
+			log.debug("Plugin skipped due to global cooldown.");
 		}
 		
-		if (cooldownSecondsRemaining > 0 && options.verbose) {
+		if (context.user && cooldownSecondsRemaining > 0 && options.verbose) {
 			let diff = cooldownSecondsRemaining;
 			
 			let hours = Math.floor(diff / (60 * 60));
