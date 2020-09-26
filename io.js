@@ -71,6 +71,13 @@ module.exports = (httpServer, plugins) => {
 					width: settings.overlay[overlay]? settings.overlay[overlay].width: settings.overlay.width,
 					height: settings.overlay[overlay]? settings.overlay[overlay].height: settings.overlay.height
 				};
+			},
+			
+			signal: (id, data={}) => {
+				plugins.event(`chatbot.signal.{${id}}`, {
+					io: ioFunctions(),
+					data: data
+				});
 			}
 			
 		};
