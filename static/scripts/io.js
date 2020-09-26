@@ -40,13 +40,16 @@ socket.on("visual", data => {
 		let transition = visual.transitionData.into;
 		
 		visual.style.transitionDuration = `${transition.seconds}s`;
+		if (transition.timing) visual.style.transitionTimingFunction = transition.timing;
+		
 		let startTransition = () => {};
 		
 		switch (transition.type) {
 			case "fade":
 				visual.style.transitionProperty = "opacity";
+				let originalOpacity = visual.style.opacity;
 				visual.style.opacity = 0;
-				startTransition = () => visual.style.opacity = 1;
+				startTransition = () => visual.style.opacity = originalOpacity;
 				break;
 			case "slide":
 				visual.style.transitionProperty = "left";
@@ -91,6 +94,8 @@ socket.on("remove-visual", data => {
 		let transition = visual.transitionData.out;
 		
 		visual.style.transitionDuration = `${transition.seconds}s`;
+		if (transition.timing) visual.style.transitionTimingFunction = transition.timing;
+		
 		let startTransition = () => {};
 		
 		switch (transition.type) {
