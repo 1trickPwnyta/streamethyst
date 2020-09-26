@@ -4,6 +4,12 @@ const log = require("./logger");
 const parseCommand = require("./parseCommand");
 const User = require("./models/user");
 
+let firstClient;
+let channelMods = [];
+let getChannelMods = async () => {
+	if (firstClient) channelMods = await firstClient.mods(settings.channel);
+};
+
 module.exports = (io, plugins) => {
 	if (!settings) {
 		log.warning("No settings.chatbot found. Chatbot will not connect.");
@@ -54,7 +60,7 @@ module.exports = (io, plugins) => {
 		else return clients["default"];
 	};
 	
-	let firstClient = clients[labels[0]];
+	firstClient = clients[labels[0]];
 	
 	// Add database user properties to user
 	let getUser = async user => {
@@ -72,7 +78,7 @@ module.exports = (io, plugins) => {
 		}
 		Object.assign(user, dbUser._doc);
 		user.admin = [
-			...(await firstClient.mods(settings.channel)), 
+			...channelMods, 
 			settings.channel.toLowerCase()
 		].includes(user.username);
 		return user;
@@ -184,6 +190,9 @@ module.exports = (io, plugins) => {
 				
 				// Load the chatbotInit plugin only after all clients have connected
 				if (++clientsConnected == labels.length) {
+					getChannelMods();
+					setInterval(getChannelMods, 1000 * 60 * 15);
+					
 					plugins.event("chatbot.connect", {
 						...pluginFunctions
 					});
