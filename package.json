@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nodemon server.js"
   },
-  "author": "1trickPonyta",
+  "author": "1trickPwnyta",
   "license": "ISC",
   "dependencies": {
     "colors": "^1.4.0",
@@ -17,6 +17,7 @@
     "node-htmlencode": "0.0.1",
     "node-restful": "^0.2.6",
     "socket.io": "^2.3.0",
-    "tmi.js": "1trickPonyta/tmi.js#master"
+    "tmi.js": "1trickPwnyta/tmi.js#master",
+    "twitch": "^4.6.7"
   }
 }
