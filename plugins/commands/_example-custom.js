@@ -7,7 +7,7 @@ module.exports = {
 		
 		/////////////////////////////////////
 		const message = "Your message here!";
-		const sound = "name-of-sound-file-in-static/audio/.mp3"
+		const sound = "name-of-sound-file-in-static/audio/.mp3";
 		/////////////////////////////////////
 		
 		// Chat a message
