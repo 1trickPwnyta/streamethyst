@@ -81,6 +81,7 @@ module.exports = (io, plugins) => {
 			...channelMods, 
 			settings.channel.toLowerCase()
 		].includes(user.username);
+		user.labels = labels.filter(label => clients[label].globaluserstate["user-id"] == user["user-id"]);
 		return user;
 	};
 	
