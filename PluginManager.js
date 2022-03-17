@@ -39,6 +39,7 @@ class PluginManager {
 					try {
 						let plugin = require(`./plugins/${file}`);
 						if (!Array.isArray(plugin)) plugin = [plugin];
+						let loaded = false;
 						plugin.forEach(module => {
 							if (module.enabled) {
 								if (!Array.isArray(module.event)) module.event = [module.event];
@@ -52,9 +53,10 @@ class PluginManager {
 										file: file
 									});
 								});
+								loaded = true;
 							}
 						});
-						log.info(`Loaded plugin "${file}".`);
+						if (loaded) log.info(`Loaded plugin "${file}".`);
 					} catch (e) {
 						log.error(`Failed to load plugin "${file}". ${e.stack}`);
 					}

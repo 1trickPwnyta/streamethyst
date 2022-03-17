@@ -1,5 +1,5 @@
-const log = require("../../../logger");
-const settings = require("../../../settings");
+const log = require("../../logger");
+const settings = require("../../settings");
 
 module.exports = (options, plugin) => {
 	

@@ -1,3 +1,8 @@
 package-lock.json
 /node_modules/
 settings.js
+/plugins/
+!/plugins/quote.js
+!/plugins/_example_*
+!/plugins/features/
+!/plugins/util/

@@ -1,5 +1,5 @@
-const Quote = require("../../models/quote");
-const log = require("../../logger");
+const Quote = require("../models/quote");
+const log = require("../logger");
 
 module.exports = {
 	enabled: true,
