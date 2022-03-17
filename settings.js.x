@@ -17,6 +17,13 @@ module.exports = {
 		commandPrefix: "!"
 	},
 	
+	api: {
+		credentials: {
+			clientid: "yourTwitchApplicationClientId",
+			secret: "yourTwitchApplicationClientSecret"
+		}
+	}, 
+	
 	overlay: {
 		width: 1920,
 		height: 1080

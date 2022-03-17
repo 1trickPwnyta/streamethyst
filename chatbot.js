@@ -1,6 +1,5 @@
 const tmi = require("tmi.js");
-const { ApiClient } = require("twitch");
-const { ClientCredentialsAuthProvider } = require("twitch-auth");
+const twitch = require("./twitch");
 const settings = require("./settings").chatbot;
 const log = require("./logger");
 const parseCommand = require("./parseCommand");
@@ -18,7 +17,7 @@ module.exports = (io, plugins) => {
 		return;
 	}
 	
-	let labels, clients = {}, twitch;
+	let labels, clients = {};
 	if (settings.credentials.username && settings.credentials.password) {
 		
 		labels = ["default"];
@@ -33,12 +32,6 @@ module.exports = (io, plugins) => {
 			connection: {
 				reconnect: true
 			}
-		});
-		twitch = new ApiClient({
-			authProvider: new ClientCredentialsAuthProvider(
-				settings.credentials.username,
-				settings.credentials.password
-			)
 		});
 		
 	} else {
@@ -58,12 +51,6 @@ module.exports = (io, plugins) => {
 					reconnect: true
 				}
 			});
-		});
-		twitch = new ApiClient({
-			authProvider: new ClientCredentialsAuthProvider(
-				settings.credentials[labels[0]].username,
-				settings.credentials[labels[0]].password
-			)
 		});
 		
 	};
