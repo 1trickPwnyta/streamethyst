@@ -70,4 +70,4 @@ Called when a user in chat enters a specific command (any message that beings wi
 Plugins register for one or more events. When the event is called, each plugin registered for that event will be triggered, in no particular order.
 
 ### Creating a Custom Plugin
-streamethyst comes with some examples of how to use custom plugins, which can be found in the subfolders of the plugins folder. The built-in quote command is also implemented using a plugin, which can be reviewed for a much more complex example.
+streamethyst comes with some examples of how to use custom plugins, which can be found in the plugins folder. The built-in quote command is also implemented using a plugin, which can be reviewed for a much more complex example.
