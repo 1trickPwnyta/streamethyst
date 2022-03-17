@@ -1,4 +1,6 @@
 const tmi = require("tmi.js");
+const { ApiClient } = require("twitch");
+const { ClientCredentialsAuthProvider } = require("twitch-auth");
 const settings = require("./settings").chatbot;
 const log = require("./logger");
 const parseCommand = require("./parseCommand");
@@ -16,7 +18,7 @@ module.exports = (io, plugins) => {
 		return;
 	}
 	
-	let labels, clients = {};
+	let labels, clients = {}, twitch;
 	if (settings.credentials.username && settings.credentials.password) {
 		
 		labels = ["default"];
@@ -31,6 +33,12 @@ module.exports = (io, plugins) => {
 			connection: {
 				reconnect: true
 			}
+		});
+		twitch = new ApiClient({
+			authProvider: new ClientCredentialsAuthProvider(
+				settings.credentials.username,
+				settings.credentials.password
+			)
 		});
 		
 	} else {
@@ -50,6 +58,12 @@ module.exports = (io, plugins) => {
 					reconnect: true
 				}
 			});
+		});
+		twitch = new ApiClient({
+			authProvider: new ClientCredentialsAuthProvider(
+				settings.credentials[labels[0]].username,
+				settings.credentials[labels[0]].password
+			)
 		});
 		
 	};
@@ -96,7 +110,7 @@ module.exports = (io, plugins) => {
 		
 		me: (label, message) => {
 			if (message) {
-			getClient(label).say(settings.channel, `/me ${message}`);
+				getClient(label).say(settings.channel, `/me ${message}`);
 			}
 		},
 		
@@ -126,7 +140,8 @@ module.exports = (io, plugins) => {
 				parameters: parameters, 
 				message: message,
 				...pluginFunctions,
-				io: io
+				io: io,
+				twitch: twitch
 			};
 		} else return null;
 	}
@@ -144,7 +159,8 @@ module.exports = (io, plugins) => {
 			user: user, 
 			message: msg,
 			...pluginFunctions,
-			io: io
+			io: io,
+			twitch: twitch
 		});
 		
 		const event = getCommandEvent(user, msg);
@@ -168,7 +184,8 @@ module.exports = (io, plugins) => {
 				user: user, 
 				message: msg,
 				...pluginFunctions,
-				io: io
+				io: io,
+				twitch: twitch
 			});
 			
 			const event = getCommandEvent(user, msg);
@@ -195,7 +212,8 @@ module.exports = (io, plugins) => {
 					setInterval(getChannelMods, 1000 * 60 * 15);
 					
 					plugins.event("chatbot.connect", {
-						...pluginFunctions
+						...pluginFunctions,
+						twitch: twitch
 					});
 				}
 			}
