@@ -7,4 +7,4 @@ module.exports = new ApiClient({
 		settings.credentials.clientid,
 		settings.credentials.secret
 	)
-});
+}).helix;
