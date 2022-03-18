@@ -133,6 +133,29 @@ module.exports = (io, plugins) => {
 		} else return null;
 	}
 	
+	// Start monitoring channel live status
+	twitch.streams.getStreamByUserName(settings.channel).then(stream => {
+		let channelLive = stream != null;
+		let monitoringInterval = settings.channelMonitoringIntervalMs || 1000 * 60 * 2
+		
+		setInterval(async () => {
+			let channelLiveUpdated = await twitch.streams.getStreamByUserName(settings.channel) != null;
+			if (channelLive != channelLiveUpdated) {
+				channelLive = channelLiveUpdated;
+				if (channelLive) plugins.event("chatbot.streamstart", {
+					...pluginFunctions,
+					io: io,
+					twitch: twitch
+				});
+				else plugins.event("chatbot.streamend", {
+					...pluginFunctions,
+					io: io,
+					twitch: twitch
+				});
+			}
+		}, monitoringInterval);
+	});
+	
 	// Only the first client loads chat-based modules
 	firstClient.on("chat", async (target, user, msg) => {
 		
