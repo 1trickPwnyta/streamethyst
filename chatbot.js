@@ -139,7 +139,7 @@ module.exports = (io, plugins) => {
 		let monitoringInterval = settings.channelMonitoringIntervalMs || 1000 * 60 * 2
 		
 		setInterval(async () => {
-			let channelLiveUpdated = await twitch.streams.getStreamByUserName(settings.channel) != null;
+			let channelLiveUpdated = (await twitch.streams.getStreamByUserName(settings.channel)) != null;
 			if (channelLive != channelLiveUpdated) {
 				channelLive = channelLiveUpdated;
 				if (channelLive) plugins.event("chatbot.streamstart", {
