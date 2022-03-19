@@ -223,7 +223,8 @@ module.exports = (io, plugins) => {
 					
 					plugins.event("chatbot.connect", {
 						...pluginFunctions,
-						twitch: twitch
+						twitch: twitch, 
+						io: io
 					});
 				}
 			}
