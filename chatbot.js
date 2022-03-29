@@ -128,7 +128,8 @@ module.exports = (io, plugins) => {
 				message: message,
 				...pluginFunctions,
 				io: io,
-				twitch: twitch
+				twitch: twitch,
+				plugins: plugins
 			};
 		} else return null;
 	}
@@ -145,12 +146,14 @@ module.exports = (io, plugins) => {
 				if (channelLive) plugins.event("chatbot.streamstart", {
 					...pluginFunctions,
 					io: io,
-					twitch: twitch
+					twitch: twitch,
+					plugins: plugins
 				});
 				else plugins.event("chatbot.streamend", {
 					...pluginFunctions,
 					io: io,
-					twitch: twitch
+					twitch: twitch,
+					plugins: plugins
 				});
 			}
 		}, monitoringInterval);
@@ -170,7 +173,8 @@ module.exports = (io, plugins) => {
 			message: msg,
 			...pluginFunctions,
 			io: io,
-			twitch: twitch
+			twitch: twitch,
+			plugins: plugins
 		});
 		
 		const event = getCommandEvent(user, msg);
@@ -195,7 +199,8 @@ module.exports = (io, plugins) => {
 				message: msg,
 				...pluginFunctions,
 				io: io,
-				twitch: twitch
+				twitch: twitch,
+				plugins: plugins
 			});
 			
 			const event = getCommandEvent(user, msg);
@@ -224,7 +229,8 @@ module.exports = (io, plugins) => {
 					plugins.event("chatbot.connect", {
 						...pluginFunctions,
 						twitch: twitch, 
-						io: io
+						io: io,
+						plugins: plugins
 					});
 				}
 			}
