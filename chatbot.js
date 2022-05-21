@@ -5,6 +5,7 @@ const log = require("./logger");
 const parseCommand = require("./parseCommand");
 const User = require("./models/user");
 
+let state = {};
 let firstClient;
 let channelMods = [];
 let getChannelMods = async () => {
@@ -129,7 +130,8 @@ module.exports = (io, plugins) => {
 				...pluginFunctions,
 				io: io,
 				twitch: twitch,
-				plugins: plugins
+				plugins: plugins, 
+				state: state
 			};
 		} else return null;
 	}
@@ -147,13 +149,15 @@ module.exports = (io, plugins) => {
 					...pluginFunctions,
 					io: io,
 					twitch: twitch,
-					plugins: plugins
+					plugins: plugins, 
+					state: state
 				});
 				else plugins.event("chatbot.streamend", {
 					...pluginFunctions,
 					io: io,
 					twitch: twitch,
-					plugins: plugins
+					plugins: plugins, 
+					state: state
 				});
 			}
 		}, monitoringInterval);
@@ -174,7 +178,8 @@ module.exports = (io, plugins) => {
 			...pluginFunctions,
 			io: io,
 			twitch: twitch,
-			plugins: plugins
+			plugins: plugins, 
+			state: state
 		});
 		
 		const event = getCommandEvent(user, msg);
@@ -200,7 +205,8 @@ module.exports = (io, plugins) => {
 				...pluginFunctions,
 				io: io,
 				twitch: twitch,
-				plugins: plugins
+				plugins: plugins, 
+				state: state
 			});
 			
 			const event = getCommandEvent(user, msg);
@@ -230,7 +236,8 @@ module.exports = (io, plugins) => {
 						...pluginFunctions,
 						twitch: twitch, 
 						io: io,
-						plugins: plugins
+						plugins: plugins, 
+						state: state
 					});
 				}
 			}
