@@ -9,7 +9,11 @@ let state = {};
 let firstClient;
 let channelMods = [];
 let getChannelMods = async () => {
-	if (firstClient) channelMods = await firstClient.mods(settings.channel);
+	try {
+		if (firstClient) channelMods = await firstClient.mods(settings.channel);
+	} catch (error) {
+		log.error(`Error while getting list of channel mods. Users will not have admin privileges: ${error}`);
+	}
 };
 
 module.exports = (io, plugins) => {
