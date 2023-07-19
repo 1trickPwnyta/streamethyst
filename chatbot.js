@@ -146,23 +146,27 @@ module.exports = (io, plugins) => {
 		let monitoringInterval = settings.channelMonitoringIntervalMs || 1000 * 60 * 2
 		
 		setInterval(async () => {
-			let channelLiveUpdated = (await twitch.streams.getStreamByUserName(settings.channel)) != null;
-			if (channelLive != channelLiveUpdated) {
-				channelLive = channelLiveUpdated;
-				if (channelLive) plugins.event("chatbot.streamstart", {
-					...pluginFunctions,
-					io: io,
-					twitch: twitch,
-					plugins: plugins, 
-					state: state
-				});
-				else plugins.event("chatbot.streamend", {
-					...pluginFunctions,
-					io: io,
-					twitch: twitch,
-					plugins: plugins, 
-					state: state
-				});
+			try {
+				let channelLiveUpdated = (await twitch.streams.getStreamByUserName(settings.channel)) != null;
+				if (channelLive != channelLiveUpdated) {
+					channelLive = channelLiveUpdated;
+					if (channelLive) plugins.event("chatbot.streamstart", {
+						...pluginFunctions,
+						io: io,
+						twitch: twitch,
+						plugins: plugins, 
+						state: state
+					});
+					else plugins.event("chatbot.streamend", {
+						...pluginFunctions,
+						io: io,
+						twitch: twitch,
+						plugins: plugins, 
+						state: state
+					});
+				}
+			} catch (error) {
+				log.error(`Couldn't get channel live status: ${error}`);
 			}
 		}, monitoringInterval);
 	});
