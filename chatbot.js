@@ -180,9 +180,12 @@ module.exports = (io, plugins) => {
 		// Add DB props
 		user = await getUser(user);
 		
+		const commandEvent = getCommandEvent(user, msg);
+		
 		plugins.event(`chatbot.message`, {
 			user: user, 
 			message: msg,
+			commandEvent: commandEvent,
 			...pluginFunctions,
 			io: io,
 			twitch: twitch,
@@ -190,11 +193,10 @@ module.exports = (io, plugins) => {
 			state: state
 		});
 		
-		const event = getCommandEvent(user, msg);
-		if (event) {
-			event.source = "chat";
-			plugins.event("chatbot.command", event);
-			plugins.event(`chatbot.command.{${event.command}}`, event);
+		if (commandEvent) {
+			commandEvent.source = "chat";
+			plugins.event("chatbot.command", commandEvent);
+			plugins.event(`chatbot.command.{${commandEvent.command}}`, commandEvent);
 		}
 		
 	});
