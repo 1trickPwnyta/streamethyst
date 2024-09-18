@@ -35,7 +35,7 @@ module.exports = {
 					context.chat("bot", "No quote deleted!");
 				}
 			} else {
-				chat("bot", "Only moderators can delete quotes!");
+				context.chat("bot", "Only moderators can delete quotes!");
 			}
 		};
 		
