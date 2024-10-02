@@ -1,22 +1,27 @@
 const tmi = require("tmi.js");
-const twitch = require("./twitch");
-const settings = require("./settings").chatbot;
 const log = require("./logger");
 const parseCommand = require("./parseCommand");
 const User = require("./models/user");
 
+let settings;
+let twitch;
 let state = {};
 let firstClient;
 let channelMods = [];
+
 let getChannelMods = async () => {
 	try {
-		if (firstClient) channelMods = await firstClient.mods(settings.channel);
+		let broadcasterId = (await twitch.users.getUserByName(settings.channel)).id;
+		channelMods = (await twitch.moderation.getModerators(broadcasterId)).data.map(mod => mod.userName);
 	} catch (error) {
 		log.error(`Error while getting list of channel mods. Users will not have admin privileges: ${error}`);
 	}
 };
 
-module.exports = (io, plugins) => {
+module.exports = async (io, plugins) => {
+	settings = (await require("./settings")()).chatbot;
+	twitch = await require("./twitch")();
+	
 	if (!settings) {
 		log.warning("No settings.chatbot found. Chatbot will not connect.");
 		return;

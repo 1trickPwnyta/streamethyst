@@ -1,10 +1,30 @@
 const { ApiClient } = require("twitch");
-const { StaticAuthProvider  } = require("twitch-auth");
-const settings = require("./settings").api;
+const { RefreshableAuthProvider, StaticAuthProvider } = require("twitch-auth");
+const { promises } = require("fs");
 
-module.exports = new ApiClient({
-	authProvider: new StaticAuthProvider (
-		settings.credentials.clientid,
-		settings.credentials.token
-	)
-}).helix;
+module.exports = async() => {
+	let settings = await require("./settings")();
+	let credentials = settings.api.credentials;
+	return new ApiClient({
+		authProvider: new RefreshableAuthProvider(
+			new StaticAuthProvider (
+				credentials.clientid,
+				credentials.token.accessToken
+			),
+			{
+				clientSecret: credentials.clientSecret,
+				refreshToken: credentials.token.refreshToken,
+				expiry: credentials.token.expiryTimestamp === null ? null : new Date(credentials.token.expiryTimestamp), 
+				onRefresh: async ({ accessToken, refreshToken, expiryDate }) => {
+					settings.api.credentials.token = {
+						accessToken: accessToken, 
+						refreshToken: refreshToken, 
+						expiryTimestamp: expiryDate === null ? null : expiryDate.getTime()
+					};
+					console.log(settings);
+					await promises.writeFile("./settings.json", JSON.stringify(settings, null, 4), "UTF-8");
+				}
+			}
+		)
+	}).helix;
+};
