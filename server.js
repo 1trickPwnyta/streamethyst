@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const mai = require("mongoose-auto-increment");
 const bodyParser = require("body-parser");
 const path = require("path");
-const settings = require("./settings");
 const log = require("./logger");
 const plugins = new (require("./PluginManager"))();
 
@@ -26,11 +25,15 @@ app.use("/overlay/*", express.static("static"));
 	res.sendFile(path.join(__dirname, "static", "index.html"));
 });*/
 
-// Start server
-httpServer.listen(settings.serverPort, () => {
-	log.info(`Server listening at http://localhost:${settings.serverPort}`);
-});
+(async () => {
+	const settings = await require("./settings")();
+	
+	// Start server
+	httpServer.listen(settings.serverPort, () => {
+		log.info(`Server listening at http://localhost:${settings.serverPort}`);
+	});
 
-// Start IO server
-const io = require("./io")(httpServer, plugins)();
-require("./chatbot")(io, plugins);
+	// Start IO server
+	const io = require("./io")(httpServer, plugins)();
+	require("./chatbot")(io, plugins);
+})();

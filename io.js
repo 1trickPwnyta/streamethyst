@@ -1,4 +1,3 @@
-const settings = require("./settings");
 const uuid = require("./util").uuidv4;
 
 module.exports = (httpServer, plugins) => {
@@ -66,7 +65,8 @@ module.exports = (httpServer, plugins) => {
 				});
 			},
 			
-			getOverlaySize: () => {
+			getOverlaySize: async () => {
+				const settings = await require("./settings")();
 				return {
 					width: settings.overlay[overlay]? settings.overlay[overlay].width: settings.overlay.width,
 					height: settings.overlay[overlay]? settings.overlay[overlay].height: settings.overlay.height
@@ -83,7 +83,7 @@ module.exports = (httpServer, plugins) => {
 		};
 	};
 	
-	io.on("connection", socket => {
+	io.on("connection", async socket => {
 		
 		// Join socket to room based on URL path overlay regex
 		let re = /^https?:\/\/.*\/overlay\/([^\/]+)\/?/;
@@ -95,7 +95,7 @@ module.exports = (httpServer, plugins) => {
 		socket.join(overlay);
 		
 		// Set the size of the overlay and clear its contents
-		let overlaySize = ioFunctions(overlay).getOverlaySize();
+		let overlaySize = await ioFunctions(overlay).getOverlaySize();
 		socket.emit("script", {
 			code: `
 document.body.style.width = "${overlaySize.width}px";
