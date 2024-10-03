@@ -21,7 +21,6 @@ module.exports = async() => {
 						refreshToken: refreshToken, 
 						expiryTimestamp: expiryDate === null ? null : expiryDate.getTime()
 					};
-					console.log(settings);
 					await promises.writeFile("./settings.json", JSON.stringify(settings, null, 4), "UTF-8");
 				}
 			}
