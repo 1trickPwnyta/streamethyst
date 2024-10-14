@@ -1,5 +1,6 @@
 {
     "serverPort": 9095,
+	"logFile": "streamethyst.log",
     "chatbot": {
         "credentials": {
             "streamer": {
