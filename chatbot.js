@@ -143,7 +143,26 @@ module.exports = async (io, plugins) => {
 				state: state
 			};
 		} else return null;
-	}
+	};
+	
+	// Parse and return a channel point reward event
+	let getRewardEvent = (user, msg) => {
+		let rewardId = user["custom-reward-id"];
+		if (rewardId) {
+			log.debug(`Custom reward redeemed by ${user["display-name"]}: ${rewardId}`);
+			
+			return {
+				user: user, 
+				rewardId: rewardId, 
+				message: msg, 
+				...pluginFunctions, 
+				io: io, 
+				twitch: twitch, 
+				plugins: plugins, 
+				state: state
+			};
+		} else return null;
+	};
 	
 	// Start monitoring channel live status
 	twitch.streams.getStreamByUserName(settings.channel).then(stream => {
@@ -186,6 +205,7 @@ module.exports = async (io, plugins) => {
 		user = await getUser(user);
 		
 		const commandEvent = getCommandEvent(user, msg);
+		const rewardEvent = getRewardEvent(user, msg);
 		
 		plugins.event(`chatbot.message`, {
 			user: user, 
@@ -202,6 +222,11 @@ module.exports = async (io, plugins) => {
 			commandEvent.source = "chat";
 			plugins.event("chatbot.command", commandEvent);
 			plugins.event(`chatbot.command.{${commandEvent.command}}`, commandEvent);
+		}
+		
+		if (rewardEvent) {
+			plugins.event("chatbot.reward", rewardEvent);
+			plugins.event(`chatbot.reward.{${rewardEvent.rewardId}}`, rewardEvent);
 		}
 		
 	});

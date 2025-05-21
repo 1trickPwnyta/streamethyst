@@ -11,7 +11,9 @@ Customize-able Node.js chatbot and overlay generator for Twitch streams
 3. Copy settings.json.x and name the copy settings.json.
 4. Replace the example values in settings.json with your own.
     * chatbot passwords are not Twitch user passwords and instead should be obtained from https://twitchapps.com/tmi/
-    * api credentials can be obtained using https://d-fischer.github.io/twitch-chat-client/docs/examples/basic-bot.html
+    * api credentials can be obtained using https://d-fischer.github.io/twitch-chat-client/docs/examples/basic-bot.html with the following required scopes:
+        * moderation:read
+		* anything required by individual custom plugins
 3. Run "npm start" to launch streamethyst.
 
 ## Features
