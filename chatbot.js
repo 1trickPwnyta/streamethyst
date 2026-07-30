@@ -96,6 +96,13 @@ module.exports = async (io, plugins) => {
 		return user;
 	};
 	
+	const console_user = await getUser({
+		"user-id": "console",
+		username: "console",
+		"display-name": "console"
+	});
+	console_user.admin = true;
+	
 	// Define functions to use in plugins
 	let pluginFunctions = {
 		
@@ -111,6 +118,8 @@ module.exports = async (io, plugins) => {
 			}
 		},
 		
+		// This does not send a whisper; it only serves to test the whisper event
+		// Sending whispers does not appear to be possible
 		whisper: (label, username, message) => {
 			if (username && message) {
 				getClient(label).whisper(username, message.toString());
@@ -195,6 +204,11 @@ module.exports = async (io, plugins) => {
 		}, monitoringInterval);
 	});
 	
+	let acceptCommand = (commandEvent) => {
+		plugins.event("chatbot.command", commandEvent);
+		plugins.event(`chatbot.command.{${commandEvent.command}}`, commandEvent);
+	};
+	
 	// Only the first client loads chat-based modules
 	firstClient.on("chat", async (target, user, msg) => {
 		
@@ -220,8 +234,7 @@ module.exports = async (io, plugins) => {
 		
 		if (commandEvent) {
 			commandEvent.source = "chat";
-			plugins.event("chatbot.command", commandEvent);
-			plugins.event(`chatbot.command.{${commandEvent.command}}`, commandEvent);
+			acceptCommand(commandEvent);
 		}
 		
 		if (rewardEvent) {
@@ -285,5 +298,13 @@ module.exports = async (io, plugins) => {
 		
 		clients[label].connect();
 	});
+	
+	return message => {
+		const commandEvent = getCommandEvent(console_user, message);
+		if (commandEvent) {
+			commandEvent.source = "console";
+			acceptCommand(commandEvent);
+		}
+	};
 	
 };

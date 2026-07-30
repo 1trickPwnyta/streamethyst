@@ -6,6 +6,8 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const log = require("./logger");
 const plugins = new (require("./PluginManager"))();
+const readline = require("readline");
+const child_process = require("child_process");
 
 // MongoDB
 mongoose.connect("mongodb://localhost/streamethyst");
@@ -25,6 +27,8 @@ app.use("/overlay/*", express.static("static"));
 	res.sendFile(path.join(__dirname, "static", "index.html"));
 });*/
 
+let command;
+
 (async () => {
 	const settings = await require("./settings")();
 	
@@ -35,5 +39,26 @@ app.use("/overlay/*", express.static("static"));
 
 	// Start IO server
 	const io = require("./io")(httpServer, plugins)();
-	require("./chatbot")(io, plugins);
+	command = await require("./chatbot")(io, plugins);
 })();
+
+const rl = readline.createInterface({
+	input: process.stdin,
+	output: process.stdout
+});
+
+rl.on("line", input => {
+	switch (input.toLowerCase()) {
+		case "/exit":
+			process.exit(0);
+			break;
+		case "/help":
+			console.log("Coming soon");
+			break;
+		default:
+			if (command) {
+				command(input);
+			}
+			break;
+	}
+});
