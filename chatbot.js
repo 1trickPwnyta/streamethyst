@@ -7,6 +7,7 @@ let settings;
 let twitch;
 let state = {};
 let firstClient;
+let channelLive;
 let channelMods = [];
 
 let getChannelMods = async () => {
@@ -26,6 +27,31 @@ module.exports = async (io, plugins) => {
 		log.warning("No settings.chatbot found. Chatbot will not connect.");
 		return;
 	}
+	
+	let getChannelStatus = async () => {
+		try {
+			let channelLiveUpdated = (await twitch.streams.getStreamByUserName(settings.channel)) != null;
+			if (channelLive !== channelLiveUpdated) {
+				channelLive = channelLiveUpdated;
+				if (channelLive) plugins.event("chatbot.streamstart", {
+					...pluginFunctions,
+					io: io,
+					twitch: twitch,
+					plugins: plugins, 
+					state: state
+				});
+				else plugins.event("chatbot.streamend", {
+					...pluginFunctions,
+					io: io,
+					twitch: twitch,
+					plugins: plugins, 
+					state: state
+				});
+			}
+		} catch (error) {
+			log.error(`Couldn't get channel live status: ${error}`);
+		}
+	};
 	
 	let labels, clients = {};
 	if (settings.credentials.username && settings.credentials.password) {
@@ -173,37 +199,6 @@ module.exports = async (io, plugins) => {
 		} else return null;
 	};
 	
-	// Start monitoring channel live status
-	twitch.streams.getStreamByUserName(settings.channel).then(stream => {
-		let channelLive = stream != null;
-		let monitoringInterval = settings.channelMonitoringIntervalMs || 1000 * 60 * 2
-		
-		setInterval(async () => {
-			try {
-				let channelLiveUpdated = (await twitch.streams.getStreamByUserName(settings.channel)) != null;
-				if (channelLive != channelLiveUpdated) {
-					channelLive = channelLiveUpdated;
-					if (channelLive) plugins.event("chatbot.streamstart", {
-						...pluginFunctions,
-						io: io,
-						twitch: twitch,
-						plugins: plugins, 
-						state: state
-					});
-					else plugins.event("chatbot.streamend", {
-						...pluginFunctions,
-						io: io,
-						twitch: twitch,
-						plugins: plugins, 
-						state: state
-					});
-				}
-			} catch (error) {
-				log.error(`Couldn't get channel live status: ${error}`);
-			}
-		}, monitoringInterval);
-	});
-	
 	let acceptCommand = (commandEvent) => {
 		plugins.event("chatbot.command", commandEvent);
 		plugins.event(`chatbot.command.{${commandEvent.command}}`, commandEvent);
@@ -276,13 +271,17 @@ module.exports = async (io, plugins) => {
 	let clientsConnected = 0;
 	labels.forEach(label => {
 		
-		clients[label].on("join", (target, username, self) => {
+		clients[label].on("join", async (target, username, self) => {
 			if (self) {
 				log.info(`${label} connected to chat on channel ${settings.channel}.`);
 				
 				// Load the chatbotInit plugin only after all clients have connected
 				if (++clientsConnected == labels.length) {
-					getChannelMods();
+					// Start monitoring channel live status
+					await getChannelStatus();
+					setInterval(getChannelStatus, settings.channelMonitoringIntervalMs || 1000 * 60 * 2);
+					
+					await getChannelMods();
 					setInterval(getChannelMods, 1000 * 60 * 15);
 					
 					plugins.event("chatbot.connect", {
@@ -290,7 +289,8 @@ module.exports = async (io, plugins) => {
 						twitch: twitch, 
 						io: io,
 						plugins: plugins, 
-						state: state
+						state: state,
+						channelLive: channelLive
 					});
 				}
 			}
