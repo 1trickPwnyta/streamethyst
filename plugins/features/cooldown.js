@@ -1,5 +1,4 @@
 const log = require("../../logger");
-const settings = require("../../settings");
 
 module.exports = (options, plugin) => {
 	
@@ -7,7 +6,9 @@ module.exports = (options, plugin) => {
 	plugin.userLastUsed = {};
 	
 	let action = plugin.action;
-	plugin.action = context => {
+	plugin.action = async context => {
+		
+		const settings = await require("../../settings")();
 		
 		let globalCooldownSecondsRemaining,
 			userCooldownSecondsRemaining,
@@ -39,10 +40,10 @@ module.exports = (options, plugin) => {
 				}
 				
 			} else {
-				log.debug("Plugin skipped due to user cooldown.");
+				log.debug(`Plugin skipped for ${context.user["display-name"]} due to user cooldown.`);
 			}
 		} else {
-			log.debug("Plugin skipped due to global cooldown.");
+			log.debug(`Plugin skipped for ${context.user["display-name"]} due to global cooldown.`);
 		}
 		
 		if (context.user && cooldownSecondsRemaining > 0 && options.verbose) {
@@ -59,7 +60,7 @@ module.exports = (options, plugin) => {
 			
 			context.chat("bot", `@${context.user["display-name"]}, please wait 
 					${("00" + hours).slice(-2)}:${("00" + mins).slice(-2)}:${("00" + seconds).slice(-2)}
-					to use ${settings.chatbot.commandPrefix}${context.command}.`);
+					to use the ${context.command} command.`);
 		}
 	};
 	
