@@ -4,6 +4,7 @@
   "description": "Customize-able Node.js chatbot and overlay generator for Twitch streams",
   "main": "server.js",
   "scripts": {
+	"monitor": "powershell while ($true) { node server.js; Write-Host 'Restarting streamethyst...'; Start-Sleep -Seconds 1 }",
     "test": "nodemon server.js"
   },
   "author": "1trickPwnyta",

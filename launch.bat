@@ -1,2 +1,2 @@
-npm start server.js
+npm run monitor
 pause
